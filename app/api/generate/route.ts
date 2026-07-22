@@ -5,7 +5,10 @@ export async function POST(request: Request) {
  const record={id,prompt,workflow:"image-generate-v1",provider:"Genblaze",created_at:new Date().toISOString(),provenance_version:"1.0"};
  if(process.env.GENBLAZE_WORKER_URL){
   const response=await fetch(`${process.env.GENBLAZE_WORKER_URL.replace(/\/$/,"")}/generate`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({prompt})});
-  if(!response.ok) return NextResponse.json({error:"Generation worker unavailable"},{status:response.status});
+  if(!response.ok){
+   const detail=await response.json().catch(()=>null);
+   return NextResponse.json({error:detail?.detail||"Generation worker unavailable"},{status:response.status});
+  }
   return NextResponse.json({...await response.json(),mode:"live"});
  }
  if(process.env.B2_ENDPOINT&&process.env.B2_BUCKET&&process.env.B2_KEY_ID&&process.env.B2_APPLICATION_KEY){
