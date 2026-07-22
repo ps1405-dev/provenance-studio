@@ -1,0 +1,13 @@
+# Local secrets
+.env
+.env.local
+.env.*.local
+
+# Dependencies and build output
+node_modules/
+.next/
+
+# Python worker artifacts
+worker/.venv/
+worker/__pycache__/
+*.py[cod]
