@@ -55,8 +55,10 @@ def generate(body: GenerateRequest):
                           Metadata={"sha256": digest, "genblaze-run-id": run_id})
         client.put_object(Bucket=bucket, Key=manifest_key, Body=manifest.to_canonical_json().encode(),
                           ContentType="application/json")
+        asset_url = client.generate_presigned_url("get_object", Params={"Bucket": bucket, "Key": asset_key}, ExpiresIn=3600)
+        manifest_url = client.generate_presigned_url("get_object", Params={"Bucket": bucket, "Key": manifest_key}, ExpiresIn=3600)
     except Exception as exc:
         raise HTTPException(502, f"B2 archive failed: {exc}") from exc
     return {"id": run_id, "model": f"Hugging Face / {model}", "mode": "live",
-            "asset_uri": asset_uri, "manifest_uri": f"s3://{bucket}/{manifest_key}",
+            "asset_uri": asset_uri, "asset_url": asset_url, "manifest_uri": f"s3://{bucket}/{manifest_key}", "manifest_url": manifest_url,
             "sha256": digest, "manifest_hash": manifest.canonical_hash, "verified": manifest.verify()}
